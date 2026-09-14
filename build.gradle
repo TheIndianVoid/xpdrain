@@ -21,6 +21,7 @@ dependencies {
 
     compileOnly "mezz.jei:jei-26.2-common-api:${project.jei_version}"
     compileOnly "mezz.jei:jei-26.2-fabric-api:${project.jei_version}"
+    compileOnly("mezz.jei:jei-26.2-fabric:${project.jei_version}") { transitive = false }
 }
 
 processResources {
