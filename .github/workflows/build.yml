@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,9 +29,21 @@ jobs:
       - name: Build
         run: gradle build --stacktrace
 
-      - name: Upload JAR
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: moar-xp-jei-compat
           path: build/libs/*.jar
           if-no-files-found: error
+
+      - name: Publish persistent GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="jei-compat-v1.0.0"
+          JAR=$(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | head -n 1)
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$JAR" --clobber
+          else
+            gh release create "$TAG" "$JAR" --title "Moar XP JEI Compat v1.0.0" --notes "Fabric 26.2 JEI compatibility for WASD Moar XP XP Tank, XP Drain and XP Spout recipes."
+          fi
