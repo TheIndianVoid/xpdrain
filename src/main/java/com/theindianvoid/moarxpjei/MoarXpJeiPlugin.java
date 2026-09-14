@@ -4,7 +4,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
+import mezz.jei.common.Internal;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -25,17 +25,12 @@ public final class MoarXpJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null) {
-            return;
-        }
-
         List<RecipeHolder<CraftingRecipe>> recipes = new ArrayList<>();
 
-        for (RecipeHolder<?> holder : minecraft.level.getRecipeManager().getRecipes()) {
+        for (RecipeHolder<?> holder : Internal.getClientSyncedRecipes().values()) {
             String path = holder.id().identifier().getPath();
             boolean target = TARGET_PATHS.stream().anyMatch(path::endsWith);
-            if (target && holder.value() instanceof CraftingRecipe craftingRecipe) {
+            if (target && holder.value() instanceof CraftingRecipe) {
                 @SuppressWarnings("unchecked")
                 RecipeHolder<CraftingRecipe> craftingHolder = (RecipeHolder<CraftingRecipe>) holder;
                 recipes.add(craftingHolder);
