@@ -5,9 +5,12 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.registration.IExtraIngredientRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.common.Internal;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -29,6 +32,22 @@ public final class MoarXpJeiPlugin implements IModPlugin {
     public Identifier getPluginUid() {
         LOGGER.info("JEI plugin discovered");
         return UID;
+    }
+
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        // All three WASD Moar XP devices are minecraft:item_frame stacks.
+        // Without a subtype interpreter, JEI collapses XP Tank/Drain/Spout into the
+        // normal Item Frame and shows unrelated Item Frame recipes.
+        // ITEM_MODEL uniquely separates the three devices, while CUSTOM_DATA and
+        // ENTITY_DATA preserve their WASD-specific identity/state.
+        registration.registerFromDataComponentTypes(
+                Items.ITEM_FRAME,
+                DataComponents.ITEM_MODEL,
+                DataComponents.CUSTOM_DATA,
+                DataComponents.ENTITY_DATA
+        );
+        LOGGER.info("Registered Item Frame component subtypes for Moar XP devices");
     }
 
     private static List<RecipeHolder<CraftingRecipe>> findTargetRecipes() {
